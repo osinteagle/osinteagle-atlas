@@ -5,20 +5,18 @@ Es ermöglicht das Erfassen, Analysieren und Verifizieren von geografischen Date
 
 🔗 Live Demo: https://geo.osinteagle.com/
 
-\---
 
 ## 🚀 Features
 
-### ① Daten importieren
+### 1 Daten importieren
 
 * CSV-Import (Lat/Lng Spalten)
 * GeoJSON Unterstützung (Punkte, Linien, Polygone)
 * Manuelles Hinzufügen per Kartenklick
 * Bearbeiten \& Löschen über Sidebar oder Marker-Popups
 
-\---
 
-### ② Experten-Suche (Overpass API)
+### 2 Experten-Suche (Overpass API)
 
 * OSM Query Builder für komplexe Abfragen
 * Kombination mehrerer Filter (z. B. Gebäudehöhe, Distanz, POIs)
@@ -27,12 +25,10 @@ Es ermöglicht das Erfassen, Analysieren und Verifizieren von geografischen Date
 * Tag-Erklärungen via TagFinder API (Hover)
 * Individuelle Farbwahl für Ergebnisse
 
-\---
 
-### ③ Kartenansicht \& Layer
+### 3 Kartenansicht \& Layer
 
 * Kartenstile:
-
   * 🌙 Dark Mode
   * ☀️ Light Mode
   * 🗺️ OpenStreetMap
@@ -41,61 +37,50 @@ Es ermöglicht das Erfassen, Analysieren und Verifizieren von geografischen Date
 * Zeitslider für zeitbasierte Daten
 * Einstellungen werden lokal gespeichert
 
-\---
 
-### ④ Review-Modus \& Fallbericht
+### 4 Review-Modus \& Fallbericht
 
 * Einträge markieren:
-
   * ✓ Geprüft
   * ★ Treffer
 * Notizen pro Eintrag
 * Export als druckbarer HTML-Fallbericht
 
-\---
 
-### ⑤ Sichtkegel \& Bildverifikation
+### 5 Sichtkegel \& Bildverifikation
 
 * Visualisierung von Blickrichtung:
-
   * Richtung
   * Winkel
   * Reichweite
 * Verifikations-Board:
-
   * Bild ↔ Karten-Verknüpfung
   * Nummerierte Marker
   * Verbindungslinien
 * Export als HTML inkl. Street View Integration
 
-\---
 
-### ⑥ Kontext-Panel
+### 6 Kontext-Panel
 
 * Detailansicht pro Punkt
 * Integration von:
-
   * Google Street View
   * Satellitenansicht
 * Direkte Links:
-
   * Google Maps
   * Apple Maps
   * Mapillary
   * Look Around
   * Overpass Turbo
 * Sonnenstand-Analyse:
-
   * Azimut
   * Elevation
   * Schattenwurf
 
-\---
 
-### ⑦ Koordinaten-Konvertierung
+### 7 Koordinaten-Konvertierung
 
 * Unterstützte Formate:
-
   * DD (Decimal Degrees)
   * DMS
   * DDM
@@ -105,12 +90,10 @@ Es ermöglicht das Erfassen, Analysieren und Verifizieren von geografischen Date
 * Sofortige Anzeige auf der Karte
 * Copy-to-Clipboard Funktion
 
-\---
 
-### ⑧ Export
+### 8 Export
 
 * Exportformate:
-
   * CSV
   * GeoJSON
   * KML
@@ -118,20 +101,17 @@ Es ermöglicht das Erfassen, Analysieren und Verifizieren von geografischen Date
 * Verifikations-Board als interaktives HTML-Dokument
 * Detailkarten pro Merkmal
 
-\---
 
 ## 🛠️ Tech Stack
 
 * Frontend: HTML, CSS, JavaScript
 * Backend: PHP
 * APIs:
-
   * OpenStreetMap / Overpass API
   * TagFinder API
   * Google Maps / Street View
   * Mapillary
 
-\---
 
 ## 🎯 Einsatzbereiche
 
@@ -141,16 +121,12 @@ Es ermöglicht das Erfassen, Analysieren und Verifizieren von geografischen Date
 * Sicherheitsanalysen
 * Lagebild-Erstellung
 
-\---
 
 ## 🤝 Contribution
-
 Pull Requests sind willkommen!  
 Bitte vorher ein Issue erstellen bei größeren Änderungen.
 
-\---
 
 ## ⚖️ Lizenz
-
 MIT License
 
