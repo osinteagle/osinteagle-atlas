@@ -1,12 +1,12 @@
-# 🌍 OSINTEAGLE GEO
+# 🌍 OSINTEAGLE ATLAS
 
-**OSINTEAGLE GEO** ist ein webbasiertes Geo-Analyse-Tool für Open Source Intelligence (OSINT).  
+**OSINTEAGLE ATLAS** ist ein webbasiertes Geo-Analyse-Tool für Open Source Intelligence (OSINT).  
 Es ermöglicht das Erfassen, Analysieren und Verifizieren von geografischen Daten direkt im Browser.
 
-🔗 Live Demo: https://geo.osinteagle.com/
+🔗 Live Demo: https://atlas.osinteagle.com/app
 
 
-## 🚀 Features
+## Features
 
 ### 1 Daten importieren
 
@@ -113,7 +113,7 @@ Es ermöglicht das Erfassen, Analysieren und Verifizieren von geografischen Date
   * Mapillary
 
 
-## 🎯 Einsatzbereiche
+## Einsatzbereiche
 
 * OSINT-Recherchen
 * Geolokalisierung von Bildern \& Videos
@@ -122,11 +122,11 @@ Es ermöglicht das Erfassen, Analysieren und Verifizieren von geografischen Date
 * Lagebild-Erstellung
 
 
-## 🤝 Contribution
+## Contribution
 Pull Requests sind willkommen!  
 Bitte vorher ein Issue erstellen bei größeren Änderungen.
 
 
-## ⚖️ Lizenz
+## Lizenz
 MIT License
 
