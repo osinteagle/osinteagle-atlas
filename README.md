@@ -95,7 +95,7 @@ It enables capturing, analyzing, and visually verifying geographic data directly
 
 ---
 
-## ⌨️ Keyboard Shortcuts
+## Keyboard Shortcuts
 
 | Key | Action |
 |-----|--------|
