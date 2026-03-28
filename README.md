@@ -72,7 +72,7 @@ It enables capturing, analyzing, and visually verifying geographic data directly
   - **Street View** — embedded Google Street View with smart road-finding (outdoor mode)
   - **Satellite** — TIM-Online aerial imagery for NRW; ArcGIS World Imagery elsewhere
   - **Links** — one-click deep links to Google Maps, Apple Maps, OSM, Mapillary, Apple Look Around, Google Earth, Overpass Turbo
-  - **☀ Sun** — solar position calculator with azimuth, elevation, sunrise/sunset times, shadow analysis, and compass rose visualization
+  - **Sun** — solar position calculator with azimuth, elevation, sunrise/sunset times, shadow analysis, and compass rose visualization
 - Wide-screen layout: all tabs displayed side by side
 
 ### 7 · Coordinate Conversion
