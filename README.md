@@ -1,132 +1,144 @@
 # 🌍 OSINTEAGLE ATLAS
 
-**OSINTEAGLE ATLAS** ist ein webbasiertes Geo-Analyse-Tool für Open Source Intelligence (OSINT).  
-Es ermöglicht das Erfassen, Analysieren und Verifizieren von geografischen Daten direkt im Browser.
+**OSINTEAGLE ATLAS** is a web-based geospatial analysis tool for Open Source Intelligence (OSINT).  
+It enables capturing, analyzing, and visually verifying geographic data directly in the browser — no installation required.
 
 🔗 Live Demo: https://atlas.osinteagle.com/app
 
+---
 
 ## Features
 
-### 1 Daten importieren
+### 1 · Data Import
+- **CSV import** — requires `lat` / `lng` columns; `datetime` column optional for timeline filtering
+- **GeoJSON support** — points, line strings, polygons, and multi-polygons (e.g. from Overpass Turbo)
+- **Manual entry** — click anywhere on the map to place a new marker
+- **Edit & delete** — via sidebar icons or marker popups
+- **Data table** — spreadsheet-style editor for bulk editing rows and columns
 
-* CSV-Import (Lat/Lng Spalten)
-* GeoJSON Unterstützung (Punkte, Linien, Polygone)
-* Manuelles Hinzufügen per Kartenklick
-* Bearbeiten \& Löschen über Sidebar oder Marker-Popups
+### 2 · Expert Search (Overpass API)
+- Visual OSM query builder for complex, multi-condition searches
+- Combine multiple filters (e.g. buildings ≥ 3 floors within 500 m of a railway station)
+- Drag & drop sorting of filter conditions
+- Individual filters can be toggled on/off
+- Tag descriptions on hover via TagFinder API
+- Freely selectable result color per query
+- Radius preview map with live circle overlay
+- Direct export to Overpass Turbo
 
+### 3 · Map View & Layers
+- Four base layer styles:
+  - **Dark** (default)
+  - **Light**
+  - **OpenStreetMap**
+  - **Satellite** (ArcGIS World Imagery + labels)
+- **Heatmap** for density cluster visualization
+- **Timeline slider** — filter entries by date/time range with histogram; state persisted across sessions
+- **Draw Tools** — measure distances, areas, circles, azimuths, and place text labels on the map; all drawings are saved to `localStorage` and restored on reload
+- **Label toggle** — show/hide permanent entry labels on the map; click a label to select the entry
+- All layer and toolbar states are saved locally between sessions
 
-### 2 Experten-Suche (Overpass API)
+### 4 · Review Mode & Field Report
+- Activate Review Mode to step through entries one by one
+- Mark entries individually:
+  - ✓ **Checked** — marker turns green on the map
+  - ★ **Hit** — marker turns yellow on the map
+- Color coding only applies when no custom color has been defined for an entry
+- Notes field per entry (toggle show/hide)
+- Filter sidebar by: All · Open · Checked · Hit
+- Progress bar showing review completion
+- **Field Report** — export all hits as a printable, standalone HTML document
+- Keyboard shortcuts: `→` / `↓` next · `←` / `↑` previous · `Space` mark checked · `Enter` mark hit
 
-* OSM Query Builder für komplexe Abfragen
-* Kombination mehrerer Filter (z. B. Gebäudehöhe, Distanz, POIs)
-* Drag \& Drop Sortierung von Suchparametern
-* Einzelne Filter aktivier-/deaktivierbar
-* Tag-Erklärungen via TagFinder API (Hover)
-* Individuelle Farbwahl für Ergebnisse
+### 5 · Field of View & Image Verification
+- **Field of View (FOV) cone** — visualize a camera or observation direction per entry:
+  - Direction (°)
+  - Opening angle (°)
+  - Range (m)
+  - Compass label with cardinal direction
+  - Saved cones persist on the map across panel open/close and page reloads
+  - Deleting a cone removes it from the map and the stored data
+  - Cones are color-coded per review state
+- **Verification Board** — side-by-side reference image and map:
+  - Place numbered pins on both the image and the map
+  - Connecting lines link image pins to map pins
+  - Describe each feature in a list below
+  - Export as interactive HTML including Street View detail maps per feature
 
+### 6 · Context Panel
+- Opens automatically when selecting an entry
+- Can be pinned to keep it visible while navigating the map
+- **Tabs:**
+  - **Street View** — embedded Google Street View with smart road-finding (outdoor mode)
+  - **Satellite** — TIM-Online aerial imagery for NRW; ArcGIS World Imagery elsewhere
+  - **Links** — one-click deep links to Google Maps, Apple Maps, OSM, Mapillary, Apple Look Around, Google Earth, Overpass Turbo
+  - **☀ Sun** — solar position calculator with azimuth, elevation, sunrise/sunset times, shadow analysis, and compass rose visualization
+- Wide-screen layout: all tabs displayed side by side
 
-### 3 Kartenansicht \& Layer
+### 7 · Coordinate Conversion
+- Supported input/output formats:
+  - **DD** — Decimal Degrees
+  - **DMS** — Degrees Minutes Seconds
+  - **DDM** — Degrees Decimal Minutes
+  - **UTM**
+  - **MGRS**
+- Automatic format detection
+- Instant display on the map
+- Copy-to-clipboard for each format
 
-* Kartenstile:
-  * 🌙 Dark Mode
-  * ☀️ Light Mode
-  * 🗺️ OpenStreetMap
-  * 🛰️ Satellit
-* Heatmap zur Dichteanalyse
-* Zeitslider für zeitbasierte Daten
-* Einstellungen werden lokal gespeichert
+### 8 · Export
+- **CSV** — comma-separated, all fields
+- **GeoJSON** — points & polygons with full geometry, GIS-compatible
+- **KML** — for Google Earth, supports points, lines & polygons
+- **JSON** — raw data including all internal fields
+- **Verification Board** — interactive HTML with per-feature detail maps and optional Street View embeds
 
+---
 
-### 4 Review-Modus \& Fallbericht
+## ⌨️ Keyboard Shortcuts
 
-* Einträge markieren:
-  * ✓ Geprüft
-  * ★ Treffer
-* Notizen pro Eintrag
-* Export als druckbarer HTML-Fallbericht
+| Key | Action |
+|-----|--------|
+| `→` / `↓` | Next entry (Review Mode) |
+| `←` / `↑` | Previous entry (Review Mode) |
+| `Enter` | Mark as Hit + save note |
+| `Space` | Mark as Checked + save note |
+| `Ctrl+V` | Paste image from clipboard as Reference Image |
+| `→` / `←` | Navigate between markers (outside Review Mode) |
+| `Scroll` | Zoom map |
 
+---
 
-### 5 Sichtkegel \& Bildverifikation
+## Tech Stack
 
-* Visualisierung von Blickrichtung:
-  * Richtung
-  * Winkel
-  * Reichweite
-* Verifikations-Board:
-  * Bild ↔ Karten-Verknüpfung
-  * Nummerierte Marker
-  * Verbindungslinien
-* Export als HTML inkl. Street View Integration
+- **Frontend:** HTML, CSS, JavaScript (no framework)
+- **Map:** Leaflet.js + CartoDB tiles + ArcGIS imagery
+- **APIs:**
+  - OpenStreetMap / Overpass API
+  - TagFinder API
+  - Google Maps Embed / Street View
+  - Mapillary
+  - TIM-Online NRW (aerial imagery)
+  - Nominatim (geocoding)
 
+---
 
-### 6 Kontext-Panel
+## Use Cases
 
-* Detailansicht pro Punkt
-* Integration von:
-  * Google Street View
-  * Satellitenansicht
-* Direkte Links:
-  * Google Maps
-  * Apple Maps
-  * Mapillary
-  * Look Around
-  * Overpass Turbo
-* Sonnenstand-Analyse:
-  * Azimut
-  * Elevation
-  * Schattenwurf
+- OSINT research and geolocation
+- Image & video geolocalization
+- Investigative journalism
+- Security and situational awareness analysis
+- Field report generation
+- Route and area analysis
 
-
-### 7 Koordinaten-Konvertierung
-
-* Unterstützte Formate:
-  * DD (Decimal Degrees)
-  * DMS
-  * DDM
-  * UTM
-  * MGRS
-* Automatische Erkennung von Formaten
-* Sofortige Anzeige auf der Karte
-* Copy-to-Clipboard Funktion
-
-
-### 8 Export
-
-* Exportformate:
-  * CSV
-  * GeoJSON
-  * KML
-  * JSON
-* Verifikations-Board als interaktives HTML-Dokument
-* Detailkarten pro Merkmal
-
-
-## 🛠️ Tech Stack
-
-* Frontend: HTML, CSS, JavaScript
-* Backend: PHP
-* APIs:
-  * OpenStreetMap / Overpass API
-  * TagFinder API
-  * Google Maps / Street View
-  * Mapillary
-
-
-## Einsatzbereiche
-
-* OSINT-Recherchen
-* Geolokalisierung von Bildern \& Videos
-* Investigativer Journalismus
-* Sicherheitsanalysen
-* Lagebild-Erstellung
-
+---
 
 ## Contribution
-Pull Requests sind willkommen!  
-Bitte vorher ein Issue erstellen bei größeren Änderungen.
 
+Pull requests are welcome!  
+Please open an issue first for larger changes to discuss the approach.
 
-## Lizenz
+## License
+
 MIT License
-
