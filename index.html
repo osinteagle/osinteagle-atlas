@@ -913,6 +913,31 @@
         body.offcanvas-wide #offcanvasExtraRow {
             display: flex !important;
         }
+
+        /* Street View maximize (wide mode only) */
+        #svMaxBtn {
+            display: none;
+        }
+
+        body.offcanvas-wide #svMaxBtn {
+            display: flex;
+        }
+
+        body.offcanvas-wide.sv-maximized #pane-sat {
+            display: none !important;
+        }
+
+        body.offcanvas-wide.sv-maximized #svMaxBtn .sv-max-icon {
+            display: none;
+        }
+
+        body.offcanvas-wide.sv-maximized #svMaxBtn .sv-restore-icon {
+            display: inline;
+        }
+
+        body.offcanvas-wide #svMaxBtn .sv-restore-icon {
+            display: none;
+        }
     </style>
 </head>
 
@@ -1440,13 +1465,28 @@
                                             style="background:#080808;border:1px solid #1e1e1e;border-radius:6px;padding:8px;font-size:10px;color:#4fc3f7;max-height:120px;overflow-y:auto;margin:0;white-space:pre-wrap;word-break:break-all;"></pre>
                                     </div>
                                 </div>
-                                <!-- Center: mini-map for radius preview -->
+                                <!-- Center: mini-map for radius/polygon preview -->
                                 <div
                                     style="display:flex;flex-direction:column;border-right:1px solid #1a1a1a;background:#0a0a0a;">
-                                    <div
-                                        style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.06em;padding:8px 10px 4px;flex-shrink:0;">
-                                        Radius preview</div>
-                                    <div id="osmMiniMap" style="flex:1;min-height:0;"></div>
+                                    <!-- Mode toggle -->
+                                    <div style="display:flex;gap:0;flex-shrink:0;border-bottom:1px solid #111;">
+                                        <button id="osmModeRadius" onclick="osmSetAreaMode('radius')"
+                                            style="flex:1;font-size:10px;padding:5px 4px;background:#1a3040;border:none;border-right:1px solid #111;color:#4fc3f7;cursor:pointer;text-transform:uppercase;letter-spacing:.05em;">
+                                            ⬤ Radius
+                                        </button>
+                                        <button id="osmModePolygon" onclick="osmSetAreaMode('polygon')"
+                                            style="flex:1;font-size:10px;padding:5px 4px;background:#0a0a0a;border:none;color:#555;cursor:pointer;text-transform:uppercase;letter-spacing:.05em;">
+                                            ⬡ Polygon
+                                        </button>
+
+                                    </div>
+                                    <div style="position:relative;flex:1;min-height:0;">
+                                        <div id="osmMiniMap" style="width:100%;height:100%;"></div>
+                                        <button id="osmPolyRedrawBtn" onclick="osmOpenPolyModal()" title="Edit polygon"
+                                            style="display:none;position:absolute;bottom:6px;right:6px;z-index:1000;background:rgba(0,0,0,.85);border:1px solid #4fc3f7;border-radius:5px;color:#4fc3f7;font-size:11px;padding:3px 8px;cursor:pointer;line-height:1.4;">
+                                            ✏ Edit
+                                        </button>
+                                    </div>
                                     <div id="osmMiniMapLabel"
                                         style="font-size:10px;color:#555;padding:5px 10px;flex-shrink:0;text-align:center;border-top:1px solid #111;">
                                         –</div>
@@ -1455,7 +1495,7 @@
                                 <div
                                     style="display:flex;flex-direction:column;background:#080808;border-left:1px solid #1a1a1a;overflow:hidden;">
                                     <div style="padding:10px 12px 8px;flex-shrink:0;border-bottom:1px solid #111;">
-                                        <div style="font-size:11px;color:#666;margin-bottom:6px;">Tag-Collectionk</div>
+                                        <div style="font-size:11px;color:#666;margin-bottom:6px;">Tag-Collection</div>
                                         <input type="search" id="osmTagSearch"
                                             class="form-control form-control-sm bg-dark border-dark text-white"
                                             placeholder="Tag suchen...">
@@ -1469,10 +1509,24 @@
                             <!-- Footer inside tab -->
                             <div
                                 style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid #1a1a1a;">
-                                <div id="osmSearchStatus" style="font-size:12px;color:#888;"></div>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <div id="osmSearchStatus" style="font-size:12px;color:#888;"></div>
+                                    <button id="osmApiServerBtn" class="btn btn-sm btn-dark border-dark"
+                                        style="font-size:11px;padding:3px 8px;" title="Change Overpass API server">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
+                                            fill="currentColor" viewBox="0 0 16 16" style="margin-right:4px;">
+                                            <path
+                                                d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0" />
+                                            <path
+                                                d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.433-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.474l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z" />
+                                        </svg>
+                                        API Server
+                                    </button>
+                                </div>
                                 <div style="display:flex;gap:8px;">
                                     <button id="osmResetQuery" class="btn btn-sm btn-dark border-dark">Reset</button>
-                                    <button id="osmOpenInTurbo" class="btn btn-sm btn-dark border-dark">
+                                    <button id="osmOpenInTurbo" class="btn btn-sm btn-dark border-dark" disabled
+                                        style="opacity:.35;cursor:not-allowed;">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
                                             fill="currentColor" viewBox="0 0 16 16">
                                             <path
@@ -2030,19 +2084,39 @@
             <div id="offcanvasMobileWrapper" style="flex:1;overflow-y:auto;overflow-x:hidden;">
                 <!-- Street View -->
                 <div id="pane-sv" style="height:100%;display:flex;flex-direction:column;padding:8px;gap:6px;">
-                    <iframe id="googleStreet" class="rounded border border-dark"
-                        style="flex:1;min-height:300px;border:0;width:100%;"></iframe>
-                    <div id="svFallback"
-                        style="display:none;flex:1;min-height:300px;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:#0a0a0a;border:1px solid #222;border-radius:6px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#444" viewBox="0 0 16 16">
-                            <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
-                            <path
-                                d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
-                        </svg>
-                        <div id="svFallbackMsg" style="font-size:13px;color:#666;text-align:center;padding:0 20px;">
+                    <div style="position:relative;flex:1;min-height:300px;">
+                        <iframe id="googleStreet" class="rounded border border-dark"
+                            style="position:absolute;inset:0;width:100%;height:100%;border:0;"></iframe>
+                        <button id="svMaxBtn" onclick="toggleSvMaximize()" title="Maximize Street View"
+                            style="position:absolute;top:8px;right:8px;z-index:10;background:rgba(0,0,0,.7);border:1px solid #444;border-radius:5px;color:#aaa;cursor:pointer;padding:3px 8px;font-size:11px;align-items:center;gap:5px;backdrop-filter:blur(4px);">
+                            <svg class="sv-max-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                fill="currentColor" viewBox="0 0 16 16">
+                                <path
+                                    d="M1.5 1h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4A1.5 1.5 0 0 1 1.5 1m13 0a1.5 1.5 0 0 1 1.5 1.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1 0-1zM0 10.5a.5.5 0 0 1 .5-.5h.5v.5a.5.5 0 0 0 .5.5H2v.5a.5.5 0 0 1-1 0v-.5H.5a.5.5 0 0 1-.5-.5m1.5 3A1.5 1.5 0 0 1 0 12v-.5a.5.5 0 0 1 1 0v.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1zm8.5.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 1 0v4a1.5 1.5 0 0 1-1.5 1.5h-4a.5.5 0 0 1-.5-.5" />
+                                <path
+                                    d="M1 1.5a.5.5 0 0 1 .5-.5H5a.5.5 0 0 1 0 1H2v3a.5.5 0 0 1-1 0zm14 0a.5.5 0 0 0-.5-.5H11a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0zM1 14.5a.5.5 0 0 0 .5.5H5a.5.5 0 0 0 0-1H2v-3a.5.5 0 0 0-1 0zm14 0a.5.5 0 0 1-.5.5H11a.5.5 0 0 1 0-1h3v-3a.5.5 0 0 1 1 0z" />
+                            </svg>
+                            <svg class="sv-restore-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                fill="currentColor" viewBox="0 0 16 16">
+                                <path
+                                    d="M5.5 0a.5.5 0 0 1 .5.5v4A1.5 1.5 0 0 1 4.5 6h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5m5 0a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 10 4.5v-4a.5.5 0 0 1 .5-.5M0 10.5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 6 11.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5m10 1a1.5 1.5 0 0 1 1.5-1.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0z" />
+                            </svg>
+                            <span class="sv-max-icon">Maximize</span>
+                            <span class="sv-restore-icon">Restore</span>
+                        </button>
+                        <div id="svFallback"
+                            style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:#0a0a0a;border:1px solid #222;border-radius:6px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#444"
+                                viewBox="0 0 16 16">
+                                <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
+                                <path
+                                    d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
+                            </svg>
+                            <div id="svFallbackMsg" style="font-size:13px;color:#666;text-align:center;padding:0 20px;">
+                            </div>
+                            <a id="svFallbackLink" href="#" target="_blank" class="btn btn-sm btn-dark border-dark"
+                                style="font-size:12px;display:none;">Open in Google Maps</a>
                         </div>
-                        <a id="svFallbackLink" href="#" target="_blank" class="btn btn-sm btn-dark border-dark"
-                            style="font-size:12px;display:none;">Open in Google Maps</a>
                     </div>
                 </div>
                 <!-- Satellite -->
@@ -2330,7 +2404,7 @@
 
     <div class="modal fade" id="confirmClearModal_placeholder" style="display:none"></div>
 
-    <div class="modal fade" id="confirmClearModal" tabindex="-1" style="z-index:9201;">
+    <div class="modal fade" id="confirmClearModal" tabindex="-1" style="z-index:9300;">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-black text-white border-dark">
                 <div class="modal-header border-bottom-0">
@@ -3226,6 +3300,13 @@
             }
         }
 
+        function toggleSvMaximize() {
+            document.body.classList.toggle('sv-maximized');
+            const btn = document.getElementById('svMaxBtn');
+            btn.style.color = document.body.classList.contains('sv-maximized') ? '#4fc3f7' : '#888';
+            btn.title = document.body.classList.contains('sv-maximized') ? 'Restore split view' : 'Maximize Street View';
+        }
+
         function switchOffcanvasTab(tab) {
             if (document.body.classList.contains('offcanvas-wide')) return;
             const tabs = ['sv', 'sat', 'links', 'sun'];
@@ -3456,12 +3537,15 @@
         // 1. Query Overpass for nearest road segment → get closest road point
         // 2. Try that point — heading toward building
         // 3. If no road found, try original coords
+        let _svGeneration = 0;
         async function loadStreetViewSmart(lat, lng) {
+            const myGen = ++_svGeneration;
             const iframe = document.getElementById('googleStreet');
             const fallback = document.getElementById('svFallback');
             const fallbackMsg = document.getElementById('svFallbackMsg');
             const fallbackLink = document.getElementById('svFallbackLink');
-            // Show loading state
+            // Reset immediately so no stale view is visible while loading
+            iframe.src = 'about:blank';
             iframe.style.display = 'none';
             fallback.style.display = 'flex';
             fallbackMsg.textContent = 'Searching Street View…';
@@ -3473,7 +3557,7 @@
                 const pad = 0.0006;
                 const bbox = `${lat - pad},${lng - pad},${lat + pad},${lng + pad}`;
                 const q = `[out:json][timeout:6];way["highway"~"^(primary|secondary|tertiary|residential|unclassified|service|living_street|pedestrian)$"](${bbox});out geom;`;
-                const r = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=' + encodeURIComponent(q) });
+                const r = await fetch(osmApiUrl, { method: 'POST', body: 'data=' + encodeURIComponent(q) });
                 const d = await r.json();
                 if (d.elements && d.elements.length) {
                     let minD = Infinity;
@@ -3494,6 +3578,9 @@
                     });
                 }
             } catch (e) { }
+
+            // Abort if a newer marker was opened while we were fetching
+            if (myGen !== _svGeneration) return;
 
             // Heading always toward the original building coords
             svHeading = ((Math.atan2(lat - svLat, lng - svLng) * (180 / Math.PI)) + 360) % 360;
@@ -3525,7 +3612,7 @@
                 // If src is about:blank after load, no panorama was found
                 try {
                     if (iframe.contentDocument && iframe.contentDocument.title === '') {
-                        showSvFallback(lat, lng, 'No Street View available at this location.');
+                        showSvFallback(lat, lng, 'Loading Street View....');
                     }
                 } catch (e) { } // cross-origin — that's fine, means it loaded
             };
@@ -4454,6 +4541,7 @@
         // Tag library for quick reference
         const OSM_TAG_LIBRARY = [
             // Buildings & structures
+            { cat: 'Buildings', label: 'House number', tags: { 'addr:housenumber': '' }, needsInput: true },
             { cat: 'Buildings', label: 'Building (general)', tags: { building: 'yes' } },
             { cat: 'Buildings', label: 'Residential house', tags: { building: 'residential' } },
             { cat: 'Buildings', label: 'Apartment building', tags: { building: 'apartments' } },
@@ -4466,6 +4554,7 @@
             { cat: 'Buildings', label: 'School', tags: { amenity: 'school' } },
             { cat: 'Buildings', label: 'Kindergarden', tags: { amenity: 'kindergarten' } },
             { cat: 'Buildings', label: 'Hospital', tags: { amenity: 'hospital' } },
+            { cat: 'Buildings', label: 'Pharmacy', tags: { amenity: 'pharmacy' } },
             { cat: 'Buildings', label: 'Supermarket', tags: { shop: 'supermarket' } },
             { cat: 'Buildings', label: 'Gas station', tags: { amenity: 'fuel' } },
             { cat: 'Buildings', label: 'Hotel', tags: { tourism: 'hotel' } },
@@ -4558,6 +4647,8 @@
         // Query builder state: array of condition objects
         // Each condition: { id, label, tags:{key:value}, osm_types:['node','way','relation'], proximity: meters|null }
         let osmConditions = [];
+        const OSM_API_DEFAULT = 'https://overpass-api.de/api/interpreter';
+        let osmApiUrl = OSM_API_DEFAULT;
 
         // ── TAGFINDER TOOLTIPS ────────────────────────────────────────────────────────
         const _tfCache = {};
@@ -4655,6 +4746,192 @@
         }
         let osmSearchCenter = null; // {lat,lng} or null → use map bounds
         let osmGroupCounter = 0;
+        let osmAreaMode = 'radius'; // 'radius' | 'polygon'
+        let osmPolyCoords = [];    // [{lat,lng}] — Polygon-Punkte
+        let _osmPolyLayer = null;  // Leaflet-Layer auf Hauptkarte
+        let _osmPolyDrawing = false;
+        let _osmMiniPolyLayer = null; // Polygon auf Mini-Map
+
+        function osmSetAreaMode(mode) {
+            osmAreaMode = mode;
+            const btnR = document.getElementById('osmModeRadius');
+            const btnP = document.getElementById('osmModePolygon');
+            const btnE = document.getElementById('osmPolyRedrawBtn');
+
+            if (mode === 'radius') {
+                if (btnR) { btnR.style.background = '#1a3040'; btnR.style.color = '#4fc3f7'; }
+                if (btnP) { btnP.style.background = '#0a0a0a'; btnP.style.color = '#555'; }
+                if (btnE) btnE.style.display = 'none';
+                document.getElementById('osmGlobalRadius').parentElement.style.display = '';
+                // Polygon-Koordinaten NICHT löschen — bleiben erhalten für Rückkehr
+                osmClearMiniPoly();
+                showOsmRadiusCircle();
+            } else {
+                if (btnP) { btnP.style.background = '#1a3040'; btnP.style.color = '#4fc3f7'; }
+                if (btnR) { btnR.style.background = '#0a0a0a'; btnR.style.color = '#555'; }
+                document.getElementById('osmGlobalRadius').parentElement.style.display = 'none';
+                osmClearMiniPoly();
+                if (_osmMiniCircle) { _osmMiniMap?.removeLayer(_osmMiniCircle); _osmMiniCircle = null; }
+                if (_osmMiniMarker) { _osmMiniMap?.removeLayer(_osmMiniMarker); _osmMiniMarker = null; }
+                if (osmPolyCoords.length >= 3) {
+                    // Bestehendes Polygon anzeigen + Edit-Button einblenden
+                    _osmUpdateMiniPoly();
+                    const lbl = document.getElementById('osmMiniMapLabel');
+                    if (lbl) lbl.textContent = `⬡ Polygon: ${osmPolyCoords.length} points`;
+                    if (btnE) btnE.style.display = 'inline-block';
+                } else {
+                    // Noch kein Polygon — Modal zum Zeichnen öffnen
+                    osmOpenPolyModal();
+                }
+            }
+            osmUpdatePreview();
+        }
+
+        // ── Polygon-Modal-Karte ──────────────────────────────────────
+        let _osmPolyModalMap = null;
+        let _osmPolyModalLayers = []; // alle Layer im Modal
+        let _osmPolyModalCoords = []; // temporäre Punkte im Modal
+
+        function osmOpenPolyModal() {
+            // Bisherige Koordinaten in Modal laden
+            _osmPolyModalCoords = osmPolyCoords.map(p => ({ ...p }));
+            const modal = new bootstrap.Modal(document.getElementById('osmPolyModal'));
+            modal.show();
+            document.getElementById('osmPolyModal').addEventListener('shown.bs.modal', () => {
+                _osmInitPolyModal();
+            }, { once: true });
+        }
+
+        function osmClosePolyModal() {
+            bootstrap.Modal.getInstance(document.getElementById('osmPolyModal'))?.hide();
+        }
+
+        function _osmInitPolyModal() {
+            if (!_osmPolyModalMap) {
+                const center = map.getCenter();
+                _osmPolyModalMap = L.map('osmPolyModalMap', {
+                    zoomControl: true, attributionControl: false
+                }).setView([center.lat, center.lng], map.getZoom());
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(_osmPolyModalMap);
+                _osmPolyModalMap.on('click', _osmModalClick);
+                _osmPolyModalMap.on('dblclick', e => { L.DomEvent.stopPropagation(e); _osmModalFinishPoly(); });
+            }
+            setTimeout(() => _osmPolyModalMap.invalidateSize(), 100);
+            // Bestehende Punkte laden und zeichnen
+            _osmPolyModalRedraw();
+            _osmPolyModalUpdateStatus();
+        }
+
+        function _osmModalClick(e) {
+            L.DomEvent.stopPropagation(e);
+            _osmPolyModalCoords.push({ lat: e.latlng.lat, lng: e.latlng.lng });
+            _osmPolyModalRedraw();
+            _osmPolyModalUpdateStatus();
+        }
+
+        function _osmPolyModalRedraw() {
+            // Alle alten Layer entfernen
+            _osmPolyModalLayers.forEach(l => { try { _osmPolyModalMap.removeLayer(l); } catch (e) { } });
+            _osmPolyModalLayers = [];
+            if (_osmPolyModalCoords.length === 0) return;
+            const pts = _osmPolyModalCoords.map(p => [p.lat, p.lng]);
+            // Polygon oder Linie
+            const shape = pts.length >= 3
+                ? L.polygon(pts, { color: '#4fc3f7', weight: 2.5, opacity: 0.9, fillColor: '#4fc3f7', fillOpacity: 0.15 })
+                : L.polyline(pts, { color: '#4fc3f7', weight: 2, dashArray: '5 4' });
+            shape.addTo(_osmPolyModalMap);
+            _osmPolyModalLayers.push(shape);
+            // Punkte als Dots
+            _osmPolyModalCoords.forEach((p, i) => {
+                const dot = L.circleMarker([p.lat, p.lng], {
+                    radius: 5, color: '#fff', fillColor: i === 0 ? '#28a745' : '#4fc3f7',
+                    fillOpacity: 1, weight: 2
+                });
+                dot.addTo(_osmPolyModalMap);
+                _osmPolyModalLayers.push(dot);
+            });
+            // Fit bounds
+            if (pts.length >= 2) {
+                _osmPolyModalMap.fitBounds(pts.length >= 3
+                    ? L.polygon(pts).getBounds()
+                    : L.polyline(pts).getBounds(),
+                    { padding: [20, 20], maxZoom: 17 });
+            }
+        }
+
+        function _osmPolyModalUpdateStatus() {
+            const n = _osmPolyModalCoords.length;
+            const st = document.getElementById('osmPolyModalStatus');
+            const saveBtn = document.getElementById('osmPolyModalSave');
+            if (n === 0) st.textContent = 'Click on the map to place points.';
+            else if (n < 3) st.textContent = `${n} point${n > 1 ? 's' : ''} placed — ${3 - n} more needed for a polygon.`;
+            else st.textContent = `✓ ${n} points — double-click or "Save" to finish.`;
+            if (saveBtn) saveBtn.disabled = n < 3;
+        }
+
+        function osmPolyModalClear() {
+            _osmPolyModalCoords = [];
+            _osmPolyModalRedraw();
+            _osmPolyModalUpdateStatus();
+            // Auch Mini-Map + gespeicherte Koordinaten sofort leeren
+            osmPolyCoords = [];
+            osmClearMiniPoly();
+            const lbl = document.getElementById('osmMiniMapLabel');
+            if (lbl) lbl.textContent = '–';
+            const btnE = document.getElementById('osmPolyRedrawBtn');
+            if (btnE) btnE.style.display = 'none';
+            osmUpdatePreview();
+        }
+
+        function osmPolyModalUndo() {
+            if (_osmPolyModalCoords.length === 0) return;
+            _osmPolyModalCoords.pop();
+            _osmPolyModalRedraw();
+            _osmPolyModalUpdateStatus();
+        }
+
+        function _osmModalFinishPoly() {
+            if (_osmPolyModalCoords.length >= 3) osmPolyModalSave();
+        }
+
+        function osmPolyModalSave() {
+            if (_osmPolyModalCoords.length < 3) {
+                showToast('At least 3 points required.', 'warning');
+                return;
+            }
+            // Koordinaten übernehmen
+            osmPolyCoords = _osmPolyModalCoords.map(p => ({ ...p }));
+            osmClosePolyModal();
+            // Mini-Map aktualisieren
+            _osmUpdateMiniPoly();
+            const lbl = document.getElementById('osmMiniMapLabel');
+            if (lbl) lbl.textContent = `⬡ Polygon: ${osmPolyCoords.length} points`;
+            const btnE = document.getElementById('osmPolyRedrawBtn');
+            if (btnE) btnE.style.display = 'inline-block';
+            document.getElementById('osmSearchStatus').textContent =
+                `✓ Polygon with ${osmPolyCoords.length} points saved.`;
+            osmUpdatePreview();
+            showToast(`Polygon with ${osmPolyCoords.length} points saved.`, 'success');
+        }
+
+        function osmClearMiniPoly() {
+            if (_osmMiniPolyLayer && _osmMiniMap) { _osmMiniMap.removeLayer(_osmMiniPolyLayer); _osmMiniPolyLayer = null; }
+        }
+
+        function _osmUpdateMiniPoly() {
+            initOsmMiniMap();
+            osmClearMiniPoly();
+            if (osmPolyCoords.length < 3) return;
+            const pts = osmPolyCoords.map(p => [p.lat, p.lng]);
+            _osmMiniPolyLayer = L.polygon(pts, {
+                color: '#4fc3f7', weight: 2, opacity: 0.9,
+                fillColor: '#4fc3f7', fillOpacity: 0.12, dashArray: '5 3'
+            }).addTo(_osmMiniMap);
+            _osmMiniMap.fitBounds(_osmMiniPolyLayer.getBounds(), { padding: [10, 10] });
+            setTimeout(() => _osmMiniMap.invalidateSize(), 50);
+        }
+
+        function osmStopPolyDraw() { /* no-op — drawing happens in modal */ }
 
         function osmGetBbox() {
             const b = map.getBounds();
@@ -4741,9 +5018,17 @@
             const radius = parseInt(document.getElementById('osmGlobalRadius').value) || 100;
             const timeout = parseInt(document.getElementById('osmTimeout').value) || 60;
             const bbox = osmGetBbox();
-            const areaMain = useCenter
-                ? `(around:${radius},${osmSearchCenter.lat},${osmSearchCenter.lng})`
-                : `(${bbox})`;
+
+            // Suchbereich: Polygon, Radius oder BBox
+            let areaMain;
+            if (osmAreaMode === 'polygon' && osmPolyCoords.length >= 3) {
+                const polyStr = osmPolyCoords.map(p => `${p.lat.toFixed(6)} ${p.lng.toFixed(6)}`).join(' ');
+                areaMain = `(poly:"${polyStr}")`;
+            } else if (useCenter) {
+                areaMain = `(around:${radius},${osmSearchCenter.lat},${osmSearchCenter.lng})`;
+            } else {
+                areaMain = `(${bbox})`;
+            }
 
             // Only use active conditions (first is always active)
             const activeConds = osmConditions.filter((c, i) => i === 0 || c.active !== false);
@@ -4780,9 +5065,25 @@
             return q;
         }
 
+        function osmUpdateTurboBtn() {
+            const q = osmBuildQuery();
+            const btn = document.getElementById('osmOpenInTurbo');
+            if (!btn) return;
+            if (q) {
+                btn.disabled = false;
+                btn.style.opacity = '';
+                btn.style.cursor = '';
+            } else {
+                btn.disabled = true;
+                btn.style.opacity = '0.35';
+                btn.style.cursor = 'not-allowed';
+            }
+        }
+
         function osmUpdatePreview() {
             const q = osmBuildQuery();
             document.getElementById('osmQueryPreview').textContent = q || '— No conditions yet. —';
+            osmUpdateTurboBtn();
         }
 
         function osmRenderConditions() {
@@ -4964,6 +5265,7 @@
             osmAddCondition({ label, tags: { [key]: val || 'yes' } });
         }
 
+
         // Category icons for tag library
         const OSM_CAT_ICONS = {
             'Buildings': '<svg width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v14H2V1zm2 0v14h2V9h4v6h2V1H4z"/></svg>',
@@ -5014,21 +5316,49 @@
                     const grid = document.createElement('div');
                     grid.style.cssText = 'display:flex;flex-direction:column;gap:2px;';
                     items.forEach(t => {
-                        const btn = document.createElement('button');
-                        const tagHint = Object.entries(t.tags).map(([k, v]) => `${k}=${v === 'yes' ? '✓' : v}`).join(' · ');
-                        const eleHint = t.eleMin ? ` ▲≥${t.eleMin}m` : '';
-                        btn.style.cssText = `width:100%;text-align:left;background:none;border:none;border-radius:4px;padding:3px 6px;font-size:11px;color:#ccc;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .12s;`;
-                        btn.innerHTML = `<span>${t.label}${eleHint ? `<span style="color:#7ec850;font-size:10px;">${eleHint}</span>` : ''}</span><span style="font-size:9px;color:#444;font-family:monospace;">${tagHint}</span>`;
-                        btn.addEventListener('mouseenter', () => {
-                            btn.style.background = '#1a1a1a';
-                            // Show tagfinder tooltip for the first tag
-                            const firstKey = Object.keys(t.tags)[0];
-                            const firstVal = t.tags[firstKey];
-                            tfShowTooltip(btn, firstKey, firstVal === 'yes' || firstVal === '*' ? '' : firstVal);
-                        });
-                        btn.addEventListener('mouseleave', () => { btn.style.background = 'none'; tfHideTooltip(); });
-                        btn.addEventListener('click', () => osmAddCondition(t));
-                        grid.appendChild(btn);
+                        if (t.needsInput) {
+                            // Inline input row for entries that require a value (e.g. house number)
+                            const row = document.createElement('div');
+                            row.style.cssText = 'display:flex;align-items:center;gap:4px;padding:3px 6px;border-radius:4px;';
+                            const lbl = document.createElement('span');
+                            lbl.style.cssText = 'font-size:11px;color:#ccc;white-space:nowrap;flex-shrink:0;';
+                            lbl.textContent = t.label;
+                            const inp = document.createElement('input');
+                            inp.type = 'text';
+                            inp.placeholder = 'e.g. 12a';
+                            inp.style.cssText = 'flex:1;min-width:0;background:#111;border:1px solid #333;border-radius:3px;color:#fff;font-size:11px;padding:2px 5px;outline:none;';
+                            const addBtn = document.createElement('button');
+                            addBtn.textContent = '+';
+                            addBtn.title = 'Add condition';
+                            addBtn.style.cssText = 'background:none;border:1px solid #4fc3f7;border-radius:3px;color:#4fc3f7;font-size:12px;padding:1px 6px;cursor:pointer;flex-shrink:0;line-height:1.4;';
+                            const doAdd = () => {
+                                const val = inp.value.trim();
+                                if (!val) { inp.focus(); return; }
+                                osmAddCondition({ label: `House number ${val}`, tags: { 'addr:housenumber': val } });
+                                inp.value = '';
+                            };
+                            addBtn.addEventListener('click', doAdd);
+                            inp.addEventListener('keydown', e => { if (e.key === 'Enter') doAdd(); });
+                            row.appendChild(lbl);
+                            row.appendChild(inp);
+                            row.appendChild(addBtn);
+                            grid.appendChild(row);
+                        } else {
+                            const btn = document.createElement('button');
+                            const tagHint = Object.entries(t.tags).map(([k, v]) => `${k}=${v === 'yes' ? '✓' : v}`).join(' · ');
+                            const eleHint = t.eleMin ? ` ▲≥${t.eleMin}m` : '';
+                            btn.style.cssText = `width:100%;text-align:left;background:none;border:none;border-radius:4px;padding:3px 6px;font-size:11px;color:#ccc;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .12s;`;
+                            btn.innerHTML = `<span>${t.label}${eleHint ? `<span style="color:#7ec850;font-size:10px;">${eleHint}</span>` : ''}</span><span style="font-size:9px;color:#444;font-family:monospace;">${tagHint}</span>`;
+                            btn.addEventListener('mouseenter', () => {
+                                btn.style.background = '#1a1a1a';
+                                const firstKey = Object.keys(t.tags)[0];
+                                const firstVal = t.tags[firstKey];
+                                tfShowTooltip(btn, firstKey, firstVal === 'yes' || firstVal === '*' ? '' : firstVal);
+                            });
+                            btn.addEventListener('mouseleave', () => { btn.style.background = 'none'; tfHideTooltip(); });
+                            btn.addEventListener('click', () => osmAddCondition(t));
+                            grid.appendChild(btn);
+                        }
                     });
                     lib.appendChild(grid);
                 });
@@ -5039,6 +5369,7 @@
                 custom.innerHTML = '+ Enter your own tag';
                 custom.addEventListener('click', osmAddCustomCondition);
                 lib.appendChild(custom);
+
             }
 
             render();
@@ -5158,7 +5489,7 @@
             osmShowLoading(true);
             status.textContent = '';
 
-            fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=' + encodeURIComponent(query) })
+            fetch(osmApiUrl, { method: 'POST', body: 'data=' + encodeURIComponent(query) })
                 .then(r => {
                     if (!r.ok) {
                         return r.text().then(txt => {
@@ -5230,6 +5561,7 @@
             if (reviewMode && (e.key === 'ArrowRight' || e.key === 'ArrowDown')) { e.preventDefault(); focusReviewEntry(reviewIndex + 1); _refocusMap(); return; }
             if (reviewMode && (e.key === 'ArrowLeft' || e.key === 'ArrowUp')) { e.preventDefault(); focusReviewEntry(reviewIndex - 1); _refocusMap(); return; }
             // Enter while drawing → finish current drawing
+            // Polygon-Zeichnung läuft jetzt im Modal — kein Haupt-Karten-Keyhandler nötig
             if (_drawActive && (e.key === 'Enter' || e.key === 'Escape') && !inInput) {
                 e.preventDefault();
                 if (e.key === 'Escape') drawDeactivate();
@@ -6977,12 +7309,20 @@ ${vbPins.filter(p => p.mapLat != null).map(p => `
             // Init mini-map when Experten-Search tab becomes visible
             document.querySelector('[data-bs-target="#tabOverpass"]').addEventListener('shown.bs.tab', () => {
                 initOsmMiniMap();
-                showOsmRadiusCircle();
+                if (osmAreaMode === 'radius') {
+                    showOsmRadiusCircle();
+                } else {
+                    // Polygon-Modus: Mini-Map mit bestehendem Polygon füllen
+                    if (osmPolyCoords.length >= 3) _osmUpdateMiniPoly();
+                    else { const lbl = document.getElementById('osmMiniMapLabel'); if (lbl) lbl.textContent = 'Polygon defined — click ✏ Edit to modify'; }
+                    setTimeout(() => _osmPolyModalMap?.invalidateSize?.(), 100);
+                }
             });
             document.getElementById('searchModal').addEventListener('shown.bs.modal', () => {
                 if (document.getElementById('tabOverpass').classList.contains('active')) {
                     initOsmMiniMap();
-                    showOsmRadiusCircle();
+                    if (osmAreaMode === 'radius') showOsmRadiusCircle();
+                    else if (osmPolyCoords.length >= 3) _osmUpdateMiniPoly();
                 }
             });
 
@@ -7011,6 +7351,7 @@ ${vbPins.filter(p => p.mapLat != null).map(p => `
             document.getElementById('osmTimeout').addEventListener('input', osmUpdatePreview);
 
             document.getElementById('osmResetQuery').addEventListener('click', () => {
+                _osmPolyModalCoords = []; osmPolyCoords = []; osmClearMiniPoly(); osmSetAreaMode('radius');
                 osmConditions = [];
                 osmSearchCenter = null;
                 osmGroupCounter = 0;
@@ -7020,6 +7361,7 @@ ${vbPins.filter(p => p.mapLat != null).map(p => `
                 document.getElementById('osmSearchStatus').textContent = '';
                 clearOsmRadiusCircle();
                 osmRenderConditions();
+                osmUpdateTurboBtn();
             });
 
             document.getElementById('osmCopyQuery').addEventListener('click', () => {
@@ -7037,6 +7379,30 @@ ${vbPins.filter(p => p.mapLat != null).map(p => `
             });
 
             document.getElementById('osmRunSearch').addEventListener('click', osmRunSearch);
+
+            // API Server modal
+            document.getElementById('osmApiServerBtn').addEventListener('click', () => {
+                document.getElementById('osmApiUrlInput').value = osmApiUrl === OSM_API_DEFAULT ? '' : osmApiUrl;
+                document.querySelectorAll('.osm-api-preset').forEach(b => {
+                    b.classList.toggle('active', b.dataset.url === osmApiUrl);
+                });
+                new bootstrap.Modal(document.getElementById('osmApiModal')).show();
+            });
+            document.querySelectorAll('.osm-api-preset').forEach(b => {
+                b.addEventListener('click', () => {
+                    document.getElementById('osmApiUrlInput').value = b.dataset.url === OSM_API_DEFAULT ? '' : b.dataset.url;
+                    document.querySelectorAll('.osm-api-preset').forEach(x => x.classList.remove('active'));
+                    b.classList.add('active');
+                });
+            });
+            document.getElementById('osmApiSaveBtn').addEventListener('click', () => {
+                const val = document.getElementById('osmApiUrlInput').value.trim();
+                osmApiUrl = val || OSM_API_DEFAULT;
+                const label = osmApiUrl === OSM_API_DEFAULT ? 'overpass-api.de' : new URL(osmApiUrl).hostname;
+                document.getElementById('osmApiServerBtn').title = `API Server: ${label}`;
+                document.getElementById('osmApiServerBtn').style.color = osmApiUrl === OSM_API_DEFAULT ? '' : '#4fc3f7';
+                bootstrap.Modal.getInstance(document.getElementById('osmApiModal')).hide();
+            });
 
             confirmMap = L.map('confirmMap', { zoomControl: false, attributionControl: false }).setView([51.1657, 10.4515], 6);
             L.tileLayer(TILE_DARK, { maxZoom: 19 }).addTo(confirmMap);
@@ -7126,6 +7492,35 @@ ${vbPins.filter(p => p.mapLat != null).map(p => `
         </div>
     </div>
 
+    <!-- Polygon-Zeichnen-Modal -->
+    <div class="modal fade" id="osmPolyModal" tabindex="-1" data-bs-backdrop="static" style="z-index:9210;">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:700px;width:96vw;">
+            <div class="modal-content bg-black text-white border-dark"
+                style="border-radius:12px;height:80vh;display:flex;flex-direction:column;">
+                <div class="modal-header border-dark" style="padding:10px 16px;flex-shrink:0;">
+                    <div style="flex:1;">
+                        <h5 class="modal-title" style="font-size:14px;margin:0;">⬡ Draw search area as polygon</h5>
+                        <div style="font-size:11px;color:#666;margin-top:3px;">Click to place points · Double-click or
+                            "Save" to finish · Esc to cancel</div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" onclick="osmClosePolyModal()"></button>
+                </div>
+                <div id="osmPolyModalMap" style="flex:1;min-height:0;"></div>
+                <div
+                    style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid #1a1a1a;flex-shrink:0;gap:8px;">
+                    <div id="osmPolyModalStatus" style="font-size:12px;color:#666;">Click on the map to place points.
+                    </div>
+                    <div style="display:flex;gap:6px;">
+                        <button class="btn btn-sm btn-dark border-dark" onclick="osmPolyModalClear()">Clear</button>
+                        <button class="btn btn-sm btn-dark border-dark" onclick="osmPolyModalUndo()">↩ Undo</button>
+                        <button class="btn btn-sm btn-success" id="osmPolyModalSave" onclick="osmPolyModalSave()"
+                            disabled>Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Overpass loading modal -->
     <div class="modal fade" id="osmLoadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
         style="z-index:9201">
@@ -7176,6 +7571,41 @@ ${vbPins.filter(p => p.mapLat != null).map(p => `
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="osmApiModal" tabindex="-1" style="z-index:9202;">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:440px;">
+            <div class="modal-content bg-black text-white border-dark" style="border-radius:12px;">
+                <div class="modal-header border-bottom border-dark" style="padding:16px 20px;">
+                    <span style="font-size:14px;font-weight:600;">Overpass API Server</span>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding:20px;">
+                    <div style="font-size:11px;color:#666;margin-bottom:8px;">Known public servers</div>
+                    <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:16px;" id="osmApiPresets">
+                        <button class="osm-api-preset btn btn-sm btn-dark border-dark text-start"
+                            style="font-size:11px;font-family:monospace;"
+                            data-url="https://overpass-api.de/api/interpreter">
+                            overpass-api.de <span style="color:#555;margin-left:6px;">(Default)</span>
+                        </button>
+                        <button class="osm-api-preset btn btn-sm btn-dark border-dark text-start"
+                            style="font-size:11px;font-family:monospace;"
+                            data-url="https://overpass.private.coffee/api/interpreter">
+                            overpass.private.coffee
+                        </button>
+                    </div>
+                    <div style="font-size:11px;color:#666;margin-bottom:6px;">Custom URL</div>
+                    <input type="url" id="osmApiUrlInput"
+                        class="form-control form-control-sm bg-dark border-dark text-white"
+                        style="font-size:12px;font-family:monospace;" placeholder="https://…/api/interpreter">
+                    <div style="font-size:10px;color:#444;margin-top:6px;">Leave empty to use the default server.</div>
+                </div>
+                <div class="modal-footer border-top border-dark" style="padding:12px 20px;">
+                    <button class="btn btn-sm btn-dark border-dark" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-sm btn-success" id="osmApiSaveBtn">Save</button>
                 </div>
             </div>
         </div>
@@ -7443,8 +7873,22 @@ self.addEventListener('fetch',e=>{
                         .catch(e => console.warn('SW fallback failed', e));
                 });
         }
-    </script>
 
+    </script>
+    <script>
+        (function () {
+            var s = 'atlas-app';
+            var base = 'https://analytics.osinteagle.com/index.php?track=1&site=' + s;
+            new Image().src = base + '&type=pageview&page=' + encodeURIComponent(location.pathname) + '&ref=' + encodeURIComponent(document.referrer);
+            setInterval(function () { new Image().src = base + '&type=heartbeat&page=' + encodeURIComponent(location.pathname); }, 30000);
+            document.addEventListener('click', function (e) {
+                var a = e.target.closest('a');
+                if (!a || !a.href) return;
+                var ext = a.hostname && a.hostname !== location.hostname;
+                new Image().src = base + '&type=' + (ext ? 'outbound' : 'internal') + '&page=' + encodeURIComponent(location.pathname) + '&link=' + encodeURIComponent(ext ? a.href : a.pathname);
+            });
+        })();
+    </script>
     <!-- Toast notifications -->
     <div id="toastContainer"
         style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column;gap:8px;pointer-events:none;min-width:300px;max-width:480px;">
