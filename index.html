@@ -1853,7 +1853,7 @@
                                         </button>
                                         <button id="osmModeBoundary" onclick="osmSetAreaMode('boundary')"
                                             style="flex:1;font-size:11px;padding:6px 4px;background:#0a0a0a;border:none;color:#555;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm1 12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1z"/></svg>Grenze
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm1 12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1z"/></svg>Boundary
                                         </button>
                                     </div>
                                     <!-- Search area mode toggle (nur bei Radius) -->
@@ -1903,17 +1903,17 @@
                                                 value="60" min="10" max="600" step="10">
                                         </div>
                                     </div>
-                                    <!-- Boundary search panel (links, wie Radius) -->
+                                    <!-- Boundary search panel -->
                                     <div id="osmBoundaryPanel" style="display:none;flex-direction:column;gap:6px;margin-bottom:1rem;">
-                                        <label style="font-size:11px;color:#666;display:block;margin-bottom:0;">Grenze suchen</label>
+                                        <label style="font-size:11px;color:#666;display:block;margin-bottom:0;">Search boundary</label>
                                         <div style="display:flex;gap:4px;">
                                             <input type="text" id="osmBoundaryInput"
-                                                placeholder="Stadt, Kreis, Bundesland…"
+                                                placeholder="City, district, state…"
                                                 class="form-control form-control-sm bg-dark border-dark text-white"
                                                 onkeydown="if(event.key==='Enter')osmSearchBoundary()">
                                             <button onclick="osmSearchBoundary()"
                                                 class="btn btn-sm"
-                                                style="font-size:11px;padding:4px 9px;background:#1a3040;border:1px solid #4fc3f7;color:#4fc3f7;white-space:nowrap;">Suchen</button>
+                                                style="font-size:11px;padding:4px 9px;background:#1a3040;border:1px solid #4fc3f7;color:#4fc3f7;white-space:nowrap;">Search</button>
                                         </div>
                                         <div id="osmBoundaryResults" style="display:none;flex-direction:column;gap:2px;max-height:130px;overflow-y:auto;"></div>
                                     </div>
@@ -5616,12 +5616,12 @@
                 });
                 clearTimeout(timer);
                 statusEl.innerHTML = resp.ok
-                    ? '<span style="color:#28a745;">✓ Erreichbar</span>'
-                    : `<span style="color:#dc3545;">✗ ${resp.status}</span>`;
+                    ? '<span style="color:#28a745;">✓ Reachable</span>'
+                    : `<span style="color:#dc3545;">✗ Error ${resp.status}</span>`;
             } catch (e) {
                 statusEl.innerHTML = e.name === 'AbortError'
                     ? '<span style="color:#fbbf24;">✗ Timeout</span>'
-                    : '<span style="color:#dc3545;">✗ Nicht erreichbar</span>';
+                    : '<span style="color:#dc3545;">✗ Unreachable</span>';
             }
         }
 
@@ -5787,7 +5787,7 @@
             const q = (document.getElementById('osmBoundaryInput').value || '').trim();
             if (!q) return;
             const resultsEl = document.getElementById('osmBoundaryResults');
-            resultsEl.innerHTML = '<div style="font-size:10px;color:#888;padding:4px;">Suche…</div>';
+            resultsEl.innerHTML = '<div style="font-size:10px;color:#888;padding:4px;">Searching…</div>';
             resultsEl.style.display = 'flex';
             try {
                 const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&polygon_geojson=1&addressdetails=1&limit=8`;
@@ -5796,7 +5796,7 @@
                 _osmBoundarySearchResults = all.filter(r => r.geojson &&
                     (r.geojson.type === 'Polygon' || r.geojson.type === 'MultiPolygon'));
                 if (!_osmBoundarySearchResults.length) {
-                    resultsEl.innerHTML = '<div style="font-size:10px;color:#888;padding:4px;">Keine Grenzen gefunden.</div>';
+                    resultsEl.innerHTML = '<div style="font-size:10px;color:#888;padding:4px;">No boundaries found.</div>';
                     return;
                 }
                 resultsEl.innerHTML = '';
@@ -5813,7 +5813,7 @@
                     resultsEl.appendChild(div);
                 });
             } catch (e) {
-                resultsEl.innerHTML = `<div style="font-size:10px;color:#f66;padding:4px;">Fehler: ${e.message}</div>`;
+                resultsEl.innerHTML = `<div style="font-size:10px;color:#f66;padding:4px;">Error: ${e.message}</div>`;
             }
         }
 
@@ -5836,13 +5836,13 @@
                 coords = coords.filter((_, i) => i % step === 0);
             }
             osmBoundaryCoords = coords;
-            osmBoundaryName = r.display_name || r.name || 'Grenze';
+            osmBoundaryName = r.display_name || r.name || 'Boundary';
             document.getElementById('osmBoundaryResults').style.display = 'none';
             const parts = osmBoundaryName.split(',');
             document.getElementById('osmBoundaryInput').value = parts.slice(0, 2).join(',').trim();
             _osmShowMiniBoundary();
             const lbl = document.getElementById('osmMiniMapLabel');
-            if (lbl) lbl.textContent = `⬜ ${parts[0].trim()} (${osmBoundaryCoords.length} Punkte)`;
+            if (lbl) lbl.textContent = `⬜ ${parts[0].trim()} (${osmBoundaryCoords.length} pts)`;
             osmUpdatePreview();
         }
 
