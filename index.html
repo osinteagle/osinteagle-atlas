@@ -1240,7 +1240,13 @@
         body.theme-light #osmAreaModeMap:not(.osm-btn-active),
         body.theme-light #osmAreaModeCustom:not(.osm-btn-active) { background: #f8f9fa !important; color: #555 !important; }
         body.theme-light #osmModeRadius:not(.osm-btn-active),
-        body.theme-light #osmModePolygon:not(.osm-btn-active) { background: #f8f9fa !important; color: #555 !important; }
+        body.theme-light #osmModePolygon:not(.osm-btn-active),
+        body.theme-light #osmModeBoundary:not(.osm-btn-active) { background: #f8f9fa !important; color: #555 !important; }
+        body.theme-light #osmModeRadius.osm-btn-active,
+        body.theme-light #osmModePolygon.osm-btn-active,
+        body.theme-light #osmModeBoundary.osm-btn-active { background: #d6eaf8 !important; color: #1a4060 !important; }
+        body.theme-light #osmBoundaryInput { background: #f8f9fa !important; color: #333 !important; border-color: var(--border) !important; }
+        body.theme-light #osmBoundaryResults > div { background: #fff !important; color: #333 !important; border-color: var(--border) !important; }
         body.theme-light #tabOverpass [style*="border:1px solid #2a2a2a"] { border-color: var(--border) !important; }
         body.theme-light #tabOverpass [style*="border-right:1px solid #1a1a1a"] { border-right-color: var(--border) !important; }
         body.theme-light #tabOverpass [style*="border-left:1px solid #1a1a1a"] { border-left-color: var(--border) !important; }
@@ -1835,8 +1841,23 @@
                                 style="display:grid;grid-template-columns:1fr 220px 260px;height:68vh;min-height:460px;">
                                 <!-- Left: builder -->
                                 <div style="padding:1rem;overflow-y:auto;border-right:1px solid #1a1a1a;">
-                                    <!-- Search area mode toggle -->
-                                    <div style="margin-bottom:0.75rem;">
+                                    <!-- Area mode tabs -->
+                                    <div style="display:flex;gap:0;border:1px solid #2a2a2a;border-radius:6px;overflow:hidden;margin-bottom:0.85rem;">
+                                        <button id="osmModeRadius" onclick="osmSetAreaMode('radius')" class="osm-btn-active"
+                                            style="flex:1;font-size:11px;padding:6px 4px;background:#1a3040;border:none;border-right:1px solid #2a2a2a;color:#4fc3f7;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8"/></svg>Radius
+                                        </button>
+                                        <button id="osmModePolygon" onclick="osmSetAreaMode('polygon')"
+                                            style="flex:1;font-size:11px;padding:6px 4px;background:#0a0a0a;border:none;border-right:1px solid #2a2a2a;color:#555;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">
+                                            ⬡ Polygon
+                                        </button>
+                                        <button id="osmModeBoundary" onclick="osmSetAreaMode('boundary')"
+                                            style="flex:1;font-size:11px;padding:6px 4px;background:#0a0a0a;border:none;color:#555;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm1 12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1z"/></svg>Grenze
+                                        </button>
+                                    </div>
+                                    <!-- Search area mode toggle (nur bei Radius) -->
+                                    <div id="osmSearchAreaSection" style="margin-bottom:0.75rem;">
                                         <div style="font-size:11px;color:#555;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;">Search area</div>
                                         <div style="display:flex;gap:0;border:1px solid #2a2a2a;border-radius:6px;overflow:hidden;margin-bottom:8px;">
                                             <button id="osmAreaModeMap" onclick="osmSetSearchAreaMode('map')" class="osm-btn-active"
@@ -1882,6 +1903,20 @@
                                                 value="60" min="10" max="600" step="10">
                                         </div>
                                     </div>
+                                    <!-- Boundary search panel (links, wie Radius) -->
+                                    <div id="osmBoundaryPanel" style="display:none;flex-direction:column;gap:6px;margin-bottom:1rem;">
+                                        <label style="font-size:11px;color:#666;display:block;margin-bottom:0;">Grenze suchen</label>
+                                        <div style="display:flex;gap:4px;">
+                                            <input type="text" id="osmBoundaryInput"
+                                                placeholder="Stadt, Kreis, Bundesland…"
+                                                class="form-control form-control-sm bg-dark border-dark text-white"
+                                                onkeydown="if(event.key==='Enter')osmSearchBoundary()">
+                                            <button onclick="osmSearchBoundary()"
+                                                class="btn btn-sm"
+                                                style="font-size:11px;padding:4px 9px;background:#1a3040;border:1px solid #4fc3f7;color:#4fc3f7;white-space:nowrap;">Suchen</button>
+                                        </div>
+                                        <div id="osmBoundaryResults" style="display:none;flex-direction:column;gap:2px;max-height:130px;overflow-y:auto;"></div>
+                                    </div>
                                     <div id="osmConditionGroups" style="display:flex;flex-direction:column;gap:8px;">
                                     </div>
                                     <div id="osmLogicHint" style="display:none;margin-top:8px;padding:7px 11px;border-radius:7px;border:1px solid #92400e;background:#1c1007;font-size:11px;color:#fbbf24;line-height:1.5;">
@@ -1900,21 +1935,9 @@
                                             style="background:#080808;border:1px solid #1e1e1e;border-radius:6px;padding:8px;font-size:10px;color:#4fc3f7;max-height:120px;overflow-y:auto;margin:0;white-space:pre-wrap;word-break:break-all;"></pre>
                                     </div>
                                 </div>
-                                <!-- Center: mini-map for radius/polygon preview -->
+                                <!-- Center: mini-map for radius/polygon/boundary preview -->
                                 <div
                                     style="display:flex;flex-direction:column;border-right:1px solid #1a1a1a;background:#0a0a0a;">
-                                    <!-- Mode toggle -->
-                                    <div style="display:flex;gap:0;flex-shrink:0;border-bottom:1px solid #111;">
-                                        <button id="osmModeRadius" onclick="osmSetAreaMode('radius')" class="osm-btn-active"
-                                            style="flex:1;font-size:10px;padding:5px 4px;background:#1a3040;border:none;border-right:1px solid #111;color:#4fc3f7;cursor:pointer;text-transform:uppercase;letter-spacing:.05em;">
-                                            ⬤ Radius
-                                        </button>
-                                        <button id="osmModePolygon" onclick="osmSetAreaMode('polygon')"
-                                            style="flex:1;font-size:10px;padding:5px 4px;background:#0a0a0a;border:none;color:#555;cursor:pointer;text-transform:uppercase;letter-spacing:.05em;">
-                                            ⬡ Polygon
-                                        </button>
-
-                                    </div>
                                     <div style="position:relative;flex:1;min-height:0;">
                                         <div id="osmMiniMap" style="width:100%;height:100%;"></div>
                                         <button id="osmPolyRedrawBtn" onclick="osmOpenPolyModal()" title="Edit polygon"
@@ -2601,7 +2624,7 @@
                 </div>
                 <!-- Satellite -->
                 <div id="pane-sat" style="height:100%;display:none;flex-direction:column;padding:8px;gap:6px;">
-                    <div id="satSourceRow" style="display:flex;gap:5px;flex-shrink:0;">
+                    <div id="satSourceRow" style="display:flex;gap:5px;flex-shrink:0;margin-bottom:5px;">
                         <button onclick="setSatMapSource('esri')" id="satSrcEsri"
                             style="flex:1;font-size:11px;padding:3px 6px;border-radius:4px;cursor:pointer;border:1px solid #4fc3f7;background:#1a3a5c;color:#4fc3f7;font-weight:600;">Esri</button>
                         <button onclick="setSatMapSource('google')" id="satSrcGoogle"
@@ -2612,6 +2635,11 @@
                     <div id="timIframeWrapper" style="flex:1;min-height:300px;border-radius:6px;overflow:hidden;border:1px solid #333;">
                         <iframe id="timIframe"
                             style="width:100%;height:100%;border:0;display:none;border-radius:6px;"></iframe>
+                        <div id="timNoEmbedFallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:#111;border-radius:6px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#555" viewBox="0 0 16 16"><path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"/><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"/></svg>
+                            <span id="timNoEmbedLabel" style="color:#777;font-size:12px;text-align:center;padding:0 16px;"></span>
+                            <a id="timNoEmbedLink" href="#" target="_blank" style="font-size:12px;padding:6px 14px;border-radius:5px;background:#1a3a5c;border:1px solid #4fc3f7;color:#4fc3f7;text-decoration:none;">Im Browser öffnen ↗</a>
+                        </div>
                         <div id="satMap" style="width:100%;height:100%;display:none;border-radius:6px;"></div>
                     </div>
                 </div>
@@ -2955,7 +2983,7 @@
                             style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:6px;color:#e0e0e0;padding:7px 10px;font-size:13px;">
                     </div>
                 </div>
-                <div style="margin-bottom:14px;">
+                <div id="editEntryIconRow" style="margin-bottom:14px;">
                     <label style="font-size:12px;color:#888;display:block;margin-bottom:6px;">Marker Icon</label>
                     <div id="editEntryIconGrid"
                         style="display:flex;flex-wrap:wrap;gap:5px;max-height:150px;overflow-y:auto;padding:4px;background:#0a0a0a;border:1px solid #1e1e1e;border-radius:6px;scrollbar-width:thin;scrollbar-color:#3b3b3b #1a1a1a;">
@@ -3140,7 +3168,7 @@
         let polylinesVisible = true;
         let tooltipsVisible = true;
         let satMap, satMarker, satMapTileLayer = null, confirmMap, confirmMarker, confirmMapTileLayer = null, selectedSearchResult = null;
-        let _satMapSource = 'esri'; // 'esri' | 'google' | 'tim'
+        let _satMapSource = localStorage.getItem('satMapSource') || 'esri'; // 'esri' | 'google' | 'tim'
         let _satLastLat = null, _satLastLng = null;
         let pendingLatLng = null, currentMarkerIndex = -1, _pendingMarker = null;
         let batchMode = false, batchSelected = new Set();
@@ -3662,6 +3690,9 @@
             document.getElementById('editEntryLat').value = entry.lat || '';
             document.getElementById('editEntryLng').value = entry.lng || '';
             document.getElementById('editEntryNote').value = entry._note || '';
+            // Show/hide icon picker depending on entry type
+            const isPolygon = entry._type === 'polygon';
+            document.getElementById('editEntryIconRow').style.display = isPolygon ? 'none' : '';
             // Build icon picker
             const iconGrid = document.getElementById('editEntryIconGrid');
             iconGrid.innerHTML = '';
@@ -3828,6 +3859,7 @@
                 if (svPane.parentNode  !== row) row.appendChild(svPane);
                 if (laPane.parentNode  !== row) row.appendChild(laPane);
                 if (satPane.parentNode !== row) row.appendChild(satPane);
+                if (window._satWideVisible) setSatMapSource(_satMapSource);
                 setTimeout(() => { if (satMap) satMap.invalidateSize(); }, 200);
             } else {
                 document.body.classList.remove('offcanvas-wide');
@@ -3888,7 +3920,11 @@
                 btn.style.color = active ? '#4fc3f7' : '#aaa';
                 if (pane) pane.style.display = active ? displayTypee[t] : 'none';
             });
-            if (tab === 'sat') setTimeout(() => { if (satMap) satMap.invalidateSize(); }, 100);
+            if (tab === 'sat') {
+                // Ensure the correct source is visible (both satMap div and timIframe start as display:none)
+                setSatMapSource(_satMapSource);
+                setTimeout(() => { if (satMap) satMap.invalidateSize(); }, 150);
+            }
         }
 
         function calcSunPositionW() {
@@ -3921,7 +3957,102 @@
         }
 
 
-        function isInNRW(lat, lng) { return lat >= 50.3 && lat <= 52.6 && lng >= 5.8 && lng <= 9.6; }
+        function isInNRW(lat, lng)          { return lat >= 50.32 && lat <= 52.53 && lng >= 5.87  && lng <= 9.46;  }
+        function isInHamburg(lat, lng)           { return lat >= 53.39 && lat <= 53.75 && lng >= 9.73  && lng <= 10.33; }
+        function isInSchleswigHolstein(lat, lng) { return lat >= 53.36 && lat <= 55.06 && lng >= 7.87  && lng <= 11.31; }
+        function isInNiedersachsen(lat, lng)     { return lat >= 51.29 && lat <= 53.90 && lng >= 6.65  && lng <= 11.60; }
+        function isInBayern(lat, lng)       { return lat >= 47.27 && lat <= 50.57 && lng >= 8.98  && lng <= 13.84; }
+        function isInThueringen(lat, lng){
+            if (!(lat >= 50.20 && lat <= 51.65 && lng >= 9.88 && lng <= 12.65)) return false;
+            if (lat > 51.0 && lng > 12.2) return false; // Leipzig/Sachsen-Überlappung ausschließen
+            return true;
+        }
+        function isInSachsen(lat, lng)      { return lat >= 50.17 && lat <= 51.68 && lng >= 11.87 && lng <= 15.04; }
+
+        // Convert WGS84 lat/lng to UTM (EPSG:25832 zone 32N or 25833 zone 33N)
+        function wgs84ToUtm(lat, lng, zone) {
+            const a = 6378137.0, eccSq = 0.00669437999014, k0 = 0.9996;
+            const lon0 = (zone * 6 - 183) * Math.PI / 180;
+            const latR = lat * Math.PI / 180, lonR = lng * Math.PI / 180;
+            const N = a / Math.sqrt(1 - eccSq * Math.sin(latR) ** 2);
+            const T = Math.tan(latR) ** 2;
+            const C = eccSq / (1 - eccSq) * Math.cos(latR) ** 2;
+            const A = (lonR - lon0) * Math.cos(latR);
+            const e1sq = eccSq / (1 - eccSq);
+            const M = a * (
+                (1 - eccSq/4 - 3*eccSq**2/64 - 5*eccSq**3/256) * latR
+                - (3*eccSq/8 + 3*eccSq**2/32 + 45*eccSq**3/1024) * Math.sin(2*latR)
+                + (15*eccSq**2/256 + 45*eccSq**3/1024) * Math.sin(4*latR)
+                - (35*eccSq**3/3072) * Math.sin(6*latR)
+            );
+            const E = Math.round(k0 * N * (A + (1-T+C)*A**3/6 + (5-18*T+T**2+72*C-58*e1sq)*A**5/120) + 500000);
+            const Nv = Math.round(k0 * (M + N*Math.tan(latR)*(A**2/2 + (5-T+9*C+4*C**2)*A**4/24 + (61-58*T+T**2+600*C-330*e1sq)*A**6/720)));
+            return { E, N: Nv };
+        }
+        function wgs84ToUtm32N(lat, lng) { return wgs84ToUtm(lat, lng, 32); }
+        function wgs84ToUtm33N(lat, lng) { return wgs84ToUtm(lat, lng, 33); }
+
+        // Returns state-specific aerial portal info or null if none available
+        function getStatePortal(lat, lng) {
+            if (isInNRW(lat, lng)) {
+                return {
+                    name: 'TIM Online (NRW)',
+                    url: `https://www.tim-online.nrw.de/tim-online2/?center=${lat},${lng}&scale=700&bg=dop&frame=true`
+                };
+            }
+            if (isInSchleswigHolstein(lat, lng) && !isInHamburg(lat, lng)) {
+                const utm = wgs84ToUtm32N(lat, lng);
+                return {
+                    name: 'GDI-SH Viewer',
+                    url: `https://danord.gdi-sh.de/viewer/resources/apps/ALKIS_FS/index.html?lang=de&vm=2D&s=2114.281021447743&r=0&c=${utm.E}%2C${utm.N}&bm=DOP20&l=-AGSD_ALKIS_FST(-0,-1,-4,-8)`,
+                    noEmbed: true
+                };
+            }
+            if (isInHamburg(lat, lng)) {
+                const utm = wgs84ToUtm32N(lat, lng);
+                const enc = s => s.replace(/{/g,'%7B').replace(/}/g,'%7D').replace(/\[/g,'%5B').replace(/\]/g,'%5D').replace(/"/g,'%22');
+                const mapsParam   = enc(`{"center":[${utm.E},${utm.N}],"mode":"2D","zoom":10}`);
+                const menuParam   = enc(`{"main":{"currentComponent":"root"},"secondary":{"currentComponent":"root"}}`);
+                const layersParam = enc(`[{"id":"19968","visibility":true},{"id":"12883","visibility":true},{"id":"34570","visibility":true},{"id":"16101","visibility":true},{"id":"16102","visibility":true}]`);
+                return {
+                    name: 'Geoportal Hamburg',
+                    url: `https://geoportal-hamburg.de/?MAPS=${mapsParam}&MENU=${menuParam}&LAYERS=${layersParam}#`
+                };
+            }
+            if (isInNiedersachsen(lat, lng) && !isInNRW(lat, lng)) {
+                const utm = wgs84ToUtm32N(lat, lng);
+                const enc = s => s.replace(/{/g, '%7B').replace(/}/g, '%7D').replace(/"/g, '%22');
+                const mapsParam   = enc(`{"center":[${utm.E},${utm.N}],"mode":"2D","zoom":19}`);
+                const menuParam   = enc(`{"main":{"currentComponent":"root"},"secondary":{"currentComponent":"root"}}`);
+                const layersParam = enc(`[{"id":"dop20","visibility":true}]`);
+                return {
+                    name: 'Geobasis NI',
+                    url: `https://www.geobasis.niedersachsen.de/index.html?MAPS=${mapsParam}&MENU=${menuParam}&LAYERS=${layersParam}#`
+                };
+            }
+            if (isInBayern(lat, lng)) {
+                const utm = wgs84ToUtm32N(lat, lng);
+                return {
+                    name: 'BayernAtlas',
+                    url: `https://atlas.bayern.de/embed.html?c=${utm.E},${utm.N}&z=19&r=0&l=vt_luftbild&mid=1&ec_map_activation=true&ec_link_to_app=true`
+                };
+            }
+            if (isInThueringen(lat, lng)) {
+                const utm = wgs84ToUtm32N(lat, lng);
+                return {
+                    name: 'Thüringen Viewer',
+                    url: `https://thueringenviewer.thueringen.de/thviewer3/index.html?MAPS={"center":[${utm.E},${utm.N}],"mode":"2D","zoom":13}&MENU={"main":{"currentComponent":"root"},"secondary":{"currentComponent":"root"}}&LAYERS=[{"id":"10108001","visibility":true}]#`
+                };
+            }
+            if (isInSachsen(lat, lng)) {
+                const utm = wgs84ToUtm33N(lat, lng);
+                return {
+                    name: 'Sachsenatlas',
+                    url: `https://geoviewer.sachsen.de/mapviewer/resources/apps/position/index.html?showCoord=${utm.E},${utm.N}&s=2000&c=${utm.E},${utm.N}&lang=de`
+                };
+            }
+            return null;
+        }
 
         function initSatelliteeMap() {
             satMap = L.map('satMap', { zoomControl: false, attributionControl: false }).setView([51.719, 8.754], 17);
@@ -3930,6 +4061,7 @@
 
         function setSatMapSource(src, lat, lng) {
             _satMapSource = src;
+            localStorage.setItem('satMapSource', src);
             // Use stored coords if none passed
             const useLat = lat ?? _satLastLat;
             const useLng = lng ?? _satLastLng;
@@ -3945,17 +4077,33 @@
                 btn.style.color       = active ? '#4fc3f7' : '#555';
                 btn.style.fontWeight  = active ? '600' : '400';
             });
-            // Swap tile layer or show TIM
+            // Swap tile layer or show state portal iframe
             const timIframe = document.getElementById('timIframe');
             const satMapEl  = document.getElementById('satMap');
             if (src === 'tim') {
                 if (satMapEl) satMapEl.style.display = 'none';
                 if (timIframe && useLat != null) {
-                    timIframe.src = `https://www.tim-online.nrw.de/tim-online2/?center=${useLat},${useLng}&scale=700&bg=dop&frame=true`;
-                    timIframe.style.display = 'block';
+                    const portal = getStatePortal(useLat, useLng);
+                    const fallback = document.getElementById('timNoEmbedFallback');
+                    if (portal) {
+                        if (portal.noEmbed) {
+                            timIframe.style.display = 'none';
+                            if (fallback) {
+                                document.getElementById('timNoEmbedLabel').textContent = `${portal.name} kann nicht eingebettet werden.`;
+                                document.getElementById('timNoEmbedLink').href = portal.url;
+                                fallback.style.display = 'flex';
+                            }
+                        } else {
+                            if (fallback) fallback.style.display = 'none';
+                            if (timIframe.src !== portal.url) timIframe.src = portal.url;
+                            timIframe.style.display = 'block';
+                        }
+                    }
                 }
             } else {
                 if (timIframe) timIframe.style.display = 'none';
+                const _nef = document.getElementById('timNoEmbedFallback');
+                if (_nef) _nef.style.display = 'none';
                 if (satMapEl) satMapEl.style.display = 'block';
                 if (satMap) {
                     if (satMapTileLayer) satMap.removeLayer(satMapTileLayer);
@@ -3964,6 +4112,7 @@
                         ? { maxZoom: 20, subdomains: ['0','1','2','3'] }
                         : { maxZoom: 19 };
                     satMapTileLayer = L.tileLayer(tileUrl, opts).addTo(satMap);
+                    if (useLat != null) satMap.setView([useLat, useLng], 19);
                     setTimeout(() => satMap.invalidateSize(), 100);
                 }
             }
@@ -4118,16 +4267,20 @@
                 const src = document.getElementById(id.replace('W', ''));
                 if (src) el.href = src.href;
             });
-            // Satellite pane — show/hide TIM button based on location
-            const inNRW = isInNRW(lat, lng);
+            // Satellite pane — show/hide state portal button and update its label
+            const statePortal = getStatePortal(lat, lng);
             const satTimBtn = document.getElementById('satSrcTim');
-            if (satTimBtn) satTimBtn.style.display = inNRW ? '' : 'none';
-            // If current source is TIM but we've moved outside NRW, fall back to Esri
-            if (!inNRW && _satMapSource === 'tim') _satMapSource = 'esri';
+            if (satTimBtn) {
+                satTimBtn.style.display = statePortal ? '' : 'none';
+                if (statePortal) satTimBtn.textContent = statePortal.name;
+            }
+            // If current source is state portal but no portal available here, fall back to Esri
+            if (!statePortal && _satMapSource === 'tim') _satMapSource = 'esri';
             // Apply current source (repositions map to new coords)
             if (_satMapSource !== 'tim') {
                 setSatMapSource(_satMapSource, lat, lng);
-                satMap.setView([lat, lng], 18);
+                const satZoom = 19;
+                satMap.setView([lat, lng], satZoom);
                 if (satMarker) satMap.removeLayer(satMarker);
                 satMarker = L.marker([lat, lng]).addTo(satMap);
                 setTimeout(() => satMap.invalidateSize(), 200);
@@ -5448,7 +5601,29 @@
         // Each condition: { id, label, tags:{key:value}, osm_types:['node','way','relation'], proximity: meters|null }
         let osmConditions = [];
         const OSM_API_DEFAULT = 'https://overpass-api.de/api/interpreter';
-        let osmApiUrl = OSM_API_DEFAULT;
+        let osmApiUrl = localStorage.getItem('osmApiUrl') || OSM_API_DEFAULT;
+
+        async function osmCheckApiUrl(url, statusEl) {
+            if (!url || !statusEl) return;
+            statusEl.innerHTML = '<span style="color:#888;">⏳</span>';
+            try {
+                const ctrl = new AbortController();
+                const timer = setTimeout(() => ctrl.abort(), 6000);
+                const resp = await fetch(url, {
+                    method: 'POST',
+                    body: 'data=' + encodeURIComponent('[out:json][timeout:5];out;'),
+                    signal: ctrl.signal
+                });
+                clearTimeout(timer);
+                statusEl.innerHTML = resp.ok
+                    ? '<span style="color:#28a745;">✓ Erreichbar</span>'
+                    : `<span style="color:#dc3545;">✗ ${resp.status}</span>`;
+            } catch (e) {
+                statusEl.innerHTML = e.name === 'AbortError'
+                    ? '<span style="color:#fbbf24;">✗ Timeout</span>'
+                    : '<span style="color:#dc3545;">✗ Nicht erreichbar</span>';
+            }
+        }
 
         // ── TAGFINDER TOOLTIPS ────────────────────────────────────────────────────────
         const _tfCache = {};
@@ -5546,47 +5721,138 @@
         }
         let osmSearchCenter = null; // {lat,lng} or null → use map bounds
         let osmGroupCounter = 0;
-        let osmAreaMode = 'radius'; // 'radius' | 'polygon'
+        let osmAreaMode = 'radius'; // 'radius' | 'polygon' | 'boundary'
         let osmPolyCoords = [];    // [{lat,lng}] — Polygon-Punkte
         let _osmPolyLayer = null;  // Leaflet-Layer auf Hauptkarte
         let _osmPolyDrawing = false;
-        let _osmMiniPolyLayer = null; // Polygon auf Mini-Map
+        let _osmMiniPolyLayer = null;     // Polygon auf Mini-Map
+        let osmBoundaryCoords = [];       // [{lat,lng}] — Grenze von Nominatim
+        let osmBoundaryName = '';
+        let _osmMiniBoundaryLayer = null; // Grenz-Layer auf Mini-Map
 
         function osmSetAreaMode(mode) {
             osmAreaMode = mode;
             const btnR = document.getElementById('osmModeRadius');
             const btnP = document.getElementById('osmModePolygon');
+            const btnB = document.getElementById('osmModeBoundary');
             const btnE = document.getElementById('osmPolyRedrawBtn');
-            if (btnR) btnR.classList.toggle('osm-btn-active', mode === 'radius');
-            if (btnP) btnP.classList.toggle('osm-btn-active', mode === 'polygon');
+            const boundaryPanel = document.getElementById('osmBoundaryPanel');
+
+            [[btnR,'radius'],[btnP,'polygon'],[btnB,'boundary']].forEach(([btn, m]) => {
+                if (!btn) return;
+                const on = mode === m;
+                btn.classList.toggle('osm-btn-active', on);
+                btn.style.background = on ? '#1a3040' : '#0a0a0a';
+                btn.style.color      = on ? '#4fc3f7' : '#555';
+            });
+            if (boundaryPanel) boundaryPanel.style.display = mode === 'boundary' ? 'flex' : 'none';
+            const searchAreaSection = document.getElementById('osmSearchAreaSection');
+            if (searchAreaSection) searchAreaSection.style.display = mode === 'radius' ? '' : 'none';
 
             if (mode === 'radius') {
-                if (btnR) { btnR.style.background = '#1a3040'; btnR.style.color = '#4fc3f7'; }
-                if (btnP) { btnP.style.background = '#0a0a0a'; btnP.style.color = '#555'; }
                 if (btnE) btnE.style.display = 'none';
                 document.getElementById('osmGlobalRadius').parentElement.style.display = '';
-                // Polygon-Koordinaten NICHT löschen — bleiben erhalten für Rückkehr
                 osmClearMiniPoly();
+                if (_osmMiniBoundaryLayer) { _osmMiniMap?.removeLayer(_osmMiniBoundaryLayer); _osmMiniBoundaryLayer = null; }
                 showOsmRadiusCircle();
-            } else {
-                if (btnP) { btnP.style.background = '#1a3040'; btnP.style.color = '#4fc3f7'; }
-                if (btnR) { btnR.style.background = '#0a0a0a'; btnR.style.color = '#555'; }
+            } else if (mode === 'polygon') {
                 document.getElementById('osmGlobalRadius').parentElement.style.display = 'none';
                 osmClearMiniPoly();
-                if (_osmMiniCircle) { _osmMiniMap?.removeLayer(_osmMiniCircle); _osmMiniCircle = null; }
-                if (_osmMiniMarker) { _osmMiniMap?.removeLayer(_osmMiniMarker); _osmMiniMarker = null; }
+                if (_osmMiniCircle)  { _osmMiniMap?.removeLayer(_osmMiniCircle);  _osmMiniCircle  = null; }
+                if (_osmMiniMarker)  { _osmMiniMap?.removeLayer(_osmMiniMarker);  _osmMiniMarker  = null; }
+                if (_osmMiniBoundaryLayer) { _osmMiniMap?.removeLayer(_osmMiniBoundaryLayer); _osmMiniBoundaryLayer = null; }
                 if (osmPolyCoords.length >= 3) {
-                    // Bestehendes Polygon anzeigen + Edit-Button einblenden
                     _osmUpdateMiniPoly();
                     const lbl = document.getElementById('osmMiniMapLabel');
                     if (lbl) lbl.textContent = `⬡ Polygon: ${osmPolyCoords.length} points`;
                     if (btnE) btnE.style.display = 'inline-block';
                 } else {
-                    // Noch kein Polygon — Modal zum Zeichnen öffnen
                     osmOpenPolyModal();
                 }
+            } else { // boundary
+                document.getElementById('osmGlobalRadius').parentElement.style.display = 'none';
+                osmClearMiniPoly();
+                if (_osmMiniCircle)  { _osmMiniMap?.removeLayer(_osmMiniCircle);  _osmMiniCircle  = null; }
+                if (_osmMiniMarker)  { _osmMiniMap?.removeLayer(_osmMiniMarker);  _osmMiniMarker  = null; }
+                if (btnE) btnE.style.display = 'none';
+                if (osmBoundaryCoords.length >= 3) _osmShowMiniBoundary();
             }
             osmUpdatePreview();
+        }
+
+        // ── Boundary search (Nominatim) ──────────────────────────────
+        let _osmBoundarySearchResults = [];
+
+        async function osmSearchBoundary() {
+            const q = (document.getElementById('osmBoundaryInput').value || '').trim();
+            if (!q) return;
+            const resultsEl = document.getElementById('osmBoundaryResults');
+            resultsEl.innerHTML = '<div style="font-size:10px;color:#888;padding:4px;">Suche…</div>';
+            resultsEl.style.display = 'flex';
+            try {
+                const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&polygon_geojson=1&addressdetails=1&limit=8`;
+                const resp = await fetch(url, { headers: { 'Accept-Language': 'de' } });
+                const all = await resp.json();
+                _osmBoundarySearchResults = all.filter(r => r.geojson &&
+                    (r.geojson.type === 'Polygon' || r.geojson.type === 'MultiPolygon'));
+                if (!_osmBoundarySearchResults.length) {
+                    resultsEl.innerHTML = '<div style="font-size:10px;color:#888;padding:4px;">Keine Grenzen gefunden.</div>';
+                    return;
+                }
+                resultsEl.innerHTML = '';
+                _osmBoundarySearchResults.forEach((r, i) => {
+                    const div = document.createElement('div');
+                    div.style.cssText = 'font-size:10px;padding:5px 7px;cursor:pointer;border-radius:3px;background:#111;border:1px solid #222;color:#ccc;line-height:1.3;';
+                    div.onmouseover = () => div.style.background = '#1a3040';
+                    div.onmouseout  = () => div.style.background = '#111';
+                    // Truncate very long display names
+                    const parts = (r.display_name || '').split(',');
+                    div.textContent = parts.slice(0, 3).join(',');
+                    div.title = r.display_name || '';
+                    div.onclick = () => osmSelectBoundary(i);
+                    resultsEl.appendChild(div);
+                });
+            } catch (e) {
+                resultsEl.innerHTML = `<div style="font-size:10px;color:#f66;padding:4px;">Fehler: ${e.message}</div>`;
+            }
+        }
+
+        function osmSelectBoundary(idx) {
+            const r = _osmBoundarySearchResults[idx];
+            if (!r || !r.geojson) return;
+            let coords = [];
+            if (r.geojson.type === 'Polygon') {
+                coords = r.geojson.coordinates[0].map(c => ({ lat: c[1], lng: c[0] }));
+            } else { // MultiPolygon — größten Ring nehmen
+                let best = [];
+                r.geojson.coordinates.forEach(poly => {
+                    if (poly[0].length > best.length) best = poly[0];
+                });
+                coords = best.map(c => ({ lat: c[1], lng: c[0] }));
+            }
+            // Auf max. 500 Punkte reduzieren (Overpass-Limit)
+            if (coords.length > 500) {
+                const step = Math.ceil(coords.length / 500);
+                coords = coords.filter((_, i) => i % step === 0);
+            }
+            osmBoundaryCoords = coords;
+            osmBoundaryName = r.display_name || r.name || 'Grenze';
+            document.getElementById('osmBoundaryResults').style.display = 'none';
+            const parts = osmBoundaryName.split(',');
+            document.getElementById('osmBoundaryInput').value = parts.slice(0, 2).join(',').trim();
+            _osmShowMiniBoundary();
+            const lbl = document.getElementById('osmMiniMapLabel');
+            if (lbl) lbl.textContent = `⬜ ${parts[0].trim()} (${osmBoundaryCoords.length} Punkte)`;
+            osmUpdatePreview();
+        }
+
+        function _osmShowMiniBoundary() {
+            if (!_osmMiniMap) return;
+            if (_osmMiniBoundaryLayer) { _osmMiniMap.removeLayer(_osmMiniBoundaryLayer); _osmMiniBoundaryLayer = null; }
+            if (osmBoundaryCoords.length < 3) return;
+            const latlngs = osmBoundaryCoords.map(c => [c.lat, c.lng]);
+            _osmMiniBoundaryLayer = L.polygon(latlngs, { color: '#4fc3f7', weight: 2, fillOpacity: 0.12, fillColor: '#4fc3f7' }).addTo(_osmMiniMap);
+            try { _osmMiniMap.fitBounds(_osmMiniBoundaryLayer.getBounds(), { padding: [10, 10] }); } catch(e) {}
         }
 
         // ── Polygon-Modal-Karte ──────────────────────────────────────
@@ -5844,9 +6110,12 @@
             const timeout = parseInt(document.getElementById('osmTimeout').value) || 60;
             const bbox = osmGetBbox();
 
-            // Suchbereich: Polygon, Radius oder BBox
+            // Suchbereich: Grenze, Polygon, Radius oder BBox
             let areaMain;
-            if (osmAreaMode === 'polygon' && osmPolyCoords.length >= 3) {
+            if (osmAreaMode === 'boundary' && osmBoundaryCoords.length >= 3) {
+                const polyStr = osmBoundaryCoords.map(p => `${p.lat.toFixed(6)} ${p.lng.toFixed(6)}`).join(' ');
+                areaMain = `(poly:"${polyStr}")`;
+            } else if (osmAreaMode === 'polygon' && osmPolyCoords.length >= 3) {
                 const polyStr = osmPolyCoords.map(p => `${p.lat.toFixed(6)} ${p.lng.toFixed(6)}`).join(' ');
                 areaMain = `(poly:"${polyStr}")`;
             } else if (useCenter) {
@@ -8332,24 +8601,54 @@ ${vbPins.filter(p => p.mapLat != null).map(p => `
 
             document.getElementById('osmRunSearch').addEventListener('click', osmRunSearch);
 
+            // Restore saved API server URL on load
+            if (osmApiUrl !== OSM_API_DEFAULT) {
+                try {
+                    const label = new URL(osmApiUrl).hostname;
+                    document.getElementById('osmApiServerBtn').title = `API Server: ${label}`;
+                    document.getElementById('osmApiServerBtn').style.color = '#4fc3f7';
+                } catch(e) { osmApiUrl = OSM_API_DEFAULT; }
+            }
+
             // API Server modal
             document.getElementById('osmApiServerBtn').addEventListener('click', () => {
-                document.getElementById('osmApiUrlInput').value = osmApiUrl === OSM_API_DEFAULT ? '' : osmApiUrl;
+                const customInput = document.getElementById('osmApiUrlInput');
+                const customStatus = document.getElementById('osmApiCustomStatus');
+                customInput.value = osmApiUrl === OSM_API_DEFAULT ? '' : osmApiUrl;
+                customStatus.innerHTML = '';
                 document.querySelectorAll('.osm-api-preset').forEach(b => {
                     b.classList.toggle('active', b.dataset.url === osmApiUrl);
+                    const s = b.querySelector('.osm-api-preset-status');
+                    if (s) { s.innerHTML = ''; osmCheckApiUrl(b.dataset.url, s); }
                 });
+                if (osmApiUrl !== OSM_API_DEFAULT) osmCheckApiUrl(osmApiUrl, customStatus);
                 new bootstrap.Modal(document.getElementById('osmApiModal')).show();
             });
             document.querySelectorAll('.osm-api-preset').forEach(b => {
                 b.addEventListener('click', () => {
-                    document.getElementById('osmApiUrlInput').value = b.dataset.url === OSM_API_DEFAULT ? '' : b.dataset.url;
+                    const url = b.dataset.url;
+                    document.getElementById('osmApiUrlInput').value = url === OSM_API_DEFAULT ? '' : url;
                     document.querySelectorAll('.osm-api-preset').forEach(x => x.classList.remove('active'));
                     b.classList.add('active');
+                    // Show status of selected preset in custom status row too
+                    const customStatus = document.getElementById('osmApiCustomStatus');
+                    if (customStatus) osmCheckApiUrl(url, customStatus);
                 });
+            });
+            // Debounced check while typing custom URL
+            let _osmApiCheckTimer = null;
+            document.getElementById('osmApiUrlInput').addEventListener('input', () => {
+                const val = document.getElementById('osmApiUrlInput').value.trim();
+                const statusEl = document.getElementById('osmApiCustomStatus');
+                if (!val) { statusEl.innerHTML = ''; return; }
+                clearTimeout(_osmApiCheckTimer);
+                statusEl.innerHTML = '<span style="color:#888;">⏳</span>';
+                _osmApiCheckTimer = setTimeout(() => osmCheckApiUrl(val, statusEl), 800);
             });
             document.getElementById('osmApiSaveBtn').addEventListener('click', () => {
                 const val = document.getElementById('osmApiUrlInput').value.trim();
                 osmApiUrl = val || OSM_API_DEFAULT;
+                localStorage.setItem('osmApiUrl', osmApiUrl);
                 const label = osmApiUrl === OSM_API_DEFAULT ? 'overpass-api.de' : new URL(osmApiUrl).hostname;
                 document.getElementById('osmApiServerBtn').title = `API Server: ${label}`;
                 document.getElementById('osmApiServerBtn').style.color = osmApiUrl === OSM_API_DEFAULT ? '' : '#4fc3f7';
@@ -8742,21 +9041,26 @@ ${vbPins.filter(p => p.mapLat != null).map(p => `
                     <div style="font-size:11px;color:#666;margin-bottom:8px;">Known public servers</div>
                     <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:16px;" id="osmApiPresets">
                         <button class="osm-api-preset btn btn-sm btn-dark border-dark text-start"
-                            style="font-size:11px;font-family:monospace;"
+                            style="font-size:11px;font-family:monospace;display:flex;justify-content:space-between;align-items:center;"
                             data-url="https://overpass-api.de/api/interpreter">
-                            overpass-api.de <span style="color:#555;margin-left:6px;">(Default)</span>
+                            <span>overpass-api.de <span style="color:#555;margin-left:6px;">(Default)</span></span>
+                            <span class="osm-api-preset-status" style="font-size:10px;margin-left:8px;"></span>
                         </button>
                         <button class="osm-api-preset btn btn-sm btn-dark border-dark text-start"
-                            style="font-size:11px;font-family:monospace;"
+                            style="font-size:11px;font-family:monospace;display:flex;justify-content:space-between;align-items:center;"
                             data-url="https://overpass.private.coffee/api/interpreter">
-                            overpass.private.coffee
+                            <span>overpass.private.coffee</span>
+                            <span class="osm-api-preset-status" style="font-size:10px;margin-left:8px;"></span>
                         </button>
                     </div>
                     <div style="font-size:11px;color:#666;margin-bottom:6px;">Custom URL</div>
                     <input type="url" id="osmApiUrlInput"
                         class="form-control form-control-sm bg-dark border-dark text-white"
                         style="font-size:12px;font-family:monospace;" placeholder="https://…/api/interpreter">
-                    <div style="font-size:10px;color:#444;margin-top:6px;">Leave empty to use the default server.</div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+                        <div style="font-size:10px;color:#444;">Leave empty to use the default server.</div>
+                        <div id="osmApiCustomStatus" style="font-size:10px;"></div>
+                    </div>
                 </div>
                 <div class="modal-footer border-top border-dark" style="padding:12px 20px;">
                     <button class="btn btn-sm btn-dark border-dark" data-bs-dismiss="modal">Cancel</button>
